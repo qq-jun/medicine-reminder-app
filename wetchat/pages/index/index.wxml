@@ -1,0 +1,19 @@
+<view class="container">
+  <navigation-bar title="药品提醒" />
+
+  <scroll-view class="med-list" scroll-y="true">
+    <view class="med-item" wx:for="{{medications}}" wx:key="id" wx:if="{{item.tracking}}">
+      <view class="med-info">
+        <text class="med-name">{{item.name}}</text>
+        <text class="med-detail">{{item.dosage}} {{item.beforeMeal ? '饭前' : '饭后'}}</text>
+        <text class="med-symptoms" wx:if="{{item.symptoms}}">适应症状: {{item.symptoms}}</text>
+        <text class="med-notes" wx:if="{{item.notes}}">备注: {{item.notes}}</text>
+        <text class="next-reminder">下次提醒: {{getNextReminder(item)}}</text>
+      </view>
+      <button class="take-btn" bindtap="onTake" data-id="{{item.id}}">已服用</button>
+      <button class="edit-btn" bindtap="onEdit" data-id="{{item.id}}">编辑</button>
+    </view>
+  </scroll-view>
+
+  <button class="add-btn" bindtap="onAdd">+ 添加药品</button>
+</view>

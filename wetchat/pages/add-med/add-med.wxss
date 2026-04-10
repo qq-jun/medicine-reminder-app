@@ -1,0 +1,74 @@
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-container {
+  flex: 1;
+  padding: 20rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.input {
+  width: 100%;
+  height: 80rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+.picker {
+  width: 100%;
+}
+
+.picker-display {
+  height: 80rpx;
+  line-height: 80rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.radio-item text {
+  margin-left: 20rpx;
+  font-size: 28rpx;
+}
+
+.picker-display[disabled] {
+  color: #aaa;
+}
+
+.save-btn {
+  width: 100%;
+  height: 80rpx;
+  background-color: #07c160;
+  color: white;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  margin-top: 40rpx;
+}

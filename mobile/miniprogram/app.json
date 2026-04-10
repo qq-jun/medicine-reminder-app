@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2b8cff",
+    "navigationBarTitleText": "用药提醒小助手",
+    "navigationBarTextStyle": "white"
+  }
+}

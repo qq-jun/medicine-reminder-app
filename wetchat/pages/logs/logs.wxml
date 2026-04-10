@@ -1,0 +1,11 @@
+<!--logs.wxml-->
+<navigation-bar title="服用历史" back="{{true}}" color="black" background="#FFF"></navigation-bar>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <block wx:for="{{history}}" wx:key="index" wx:for-item="record">
+    <view class="history-item">
+      <text class="med-name">{{record.medName}}</text>
+      <text class="details">{{record.date}} {{record.slot}} {{record.time}}</text>
+    </view>
+  </block>
+  <view wx:if="{{history.length === 0}}" class="no-data">暂无服用记录</view>
+</scroll-view>

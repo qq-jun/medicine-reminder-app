@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2b8cff" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <title>用药提醒APP</title>
+    <style>
+        :root {
+            --bg: #f4f9ff;
+            --card: #ffffff;
+            --text: #212f42;
+            --accent: #2b8cff;
+            --soft: #cde3ff;
+            --border: #d7e8ff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+        }
+        .app {
+            min-height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(39, 96, 178, 0.08);
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+        label {
+            display: block;
+            margin: 8px 0 4px;
+            font-size: 0.9rem;
+        }
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            padding: 8px 10px;
+            font-size: 0.95rem;
+        }
+        textarea { resize: vertical; min-height: 56px; }
+        .row {
+            display: flex;
+            gap: 8px;
+        }
+        .row > * { flex: 1; }
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform .1s ease;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-muted { background: var(--soft); color: #1355a4; }
+        .tips {
+            background: #e8f2ff;
+            border: 1px dashed #a8d0ff;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.86rem;
+            margin-bottom: 14px;
+        }
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+        }
+        .item h3 { margin: 0 0 6px; }
+        .meta { font-size: 0.87rem; color: #335478; margin-bottom: 6px; }
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .action-btn { flex: 1; }
+        .status { font-size: 0.84rem; color: #3b7d30; }
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.86rem;
+            display: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>用药提醒小助手</h1>
+        <p>记录/管理用药，支持提醒及音乐提示</p>
+    </div>
+
+    <div class="card">
+        <h2>用药信息填写</h2>
+        <div class="row">
+            <div>
+                <label>药品名称</label>
+                <input id="name" type="text" placeholder="例如：阿莫西林" required>
+            </div>
+            <div>
+                <label>用药剂量</label>
+                <input id="dose" type="text" placeholder="例如：250mg/1片">
+            </div>
+        </div>
+
+        <div class="row" style="align-items:flex-end;">
+            <div>
+                <label>用药规则</label>
+                <select id="repeatType">
+                    <option value="daily1">每天1次</option>
+                    <option value="daily2">每天2次（早、晚）</option>
+                    <option value="daily3">每天3次（早、中、晚）</option>
+                    <option value="interval">间隔X天</option>
+                    <option value="weekly">特定星期</option>
+                </select>
+            </div>
+            <div>
+                <label>饭前/饭后</label>
+                <select id="meal">
+                    <option value="饭前">饭前</option>
+                    <option value="饭后">饭后</option>
+                </select>
+            </div>
+            <div style="flex: 0 0 100px;">
+                <label>间隔天</label>
+                <input id="intervalDays" type="number" min="1" value="1" placeholder="间隔天" style="display:none; width:100%;">
+            </div>
+        </div>
+        <div id="weekdayGroup" style="margin-top:8px; display:none;">
+            <label>选择星期</label>
+            <div class="row">
+                <label><input type="checkbox" value="1"> 一</label>
+                <label><input type="checkbox" value="2"> 二</label>
+                <label><input type="checkbox" value="3"> 三</label>
+                <label><input type="checkbox" value="4"> 四</label>
+                <label><input type="checkbox" value="5"> 五</label>
+                <label><input type="checkbox" value="6"> 六</label>
+                <label><input type="checkbox" value="0"> 日</label>
+            </div>
+        </div>
+
+        <label>用药时间段</label>
+        <div class="time-periods row" style="align-items:center; gap:8px;">
+            <div style="flex:1;">
+                <label><input type="checkbox" value="morning" onchange="toggleTimeInput(this)"> 早上</label>
+                <input type="time" id="morningTime" value="" disabled>
+            </div>
+            <div style="flex:1;">
+                <label><input type="checkbox" value="noon" onchange="toggleTimeInput(this)"> 中午</label>
+                <input type="time" id="noonTime" value="" disabled>
+            </div>
+            <div style="flex:1;">
+                <label><input type="checkbox" value="evening" onchange="toggleTimeInput(this)"> 晚上</label>
+                <input type="time" id="eveningTime" value="" disabled>
+            </div>
+        </div>
+
+        <label>主治症状</label>
+        <input id="condition" type="text" placeholder="例如：咳嗽、感冒">
+
+        <label>提醒音</label>
+        <div class="row">
+            <select id="tone">
+                <option value="default">默认</option>
+                <option value="tone1">提示1</option>
+                <option value="tone2">提示2</option>
+                <option value="none">静音</option>
+            </select>
+            <input id="volume" type="range" min="0" max="1" step="0.05" value="0.5">
+        </div>
+
+        <label>备注</label>
+        <textarea id="remark" placeholder="可写服药次数、注意事项等"></textarea>
+
+        <div class="row" style="margin-top:10px;">
+            <button id="saveBtn" class="btn btn-primary">新增用药</button>
+            <button id="clearBtn" class="btn btn-muted">清空输入</button>
+        </div>
+    </div>
+
+    <div class="tips card">
+        <strong>用药常识：</strong>
+        <ul>
+            <li>按医嘱服用，切勿擅自加减药量。</li>
+            <li>饭前/饭后请严格遵守，避免影响药效和胃肠不适。</li>
+            <li>若出现过敏或不适，及时就医。</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>当前用药列表</h2>
+        <div id="list" class="list"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+</div>
+
+<script>
+    const listEl = document.getElementById('list');
+    const toastEl = document.getElementById('toast');
+
+    let records = JSON.parse(localStorage.getItem('medicineRecords') || '[]');
+    let editingId = null;
+
+    function saveRecords() {
+        localStorage.setItem('medicineRecords', JSON.stringify(records));
+    }
+
+    function showToast(message) {
+        toastEl.textContent = message;
+        toastEl.style.display = 'block';
+        setTimeout(() => { toastEl.style.display = 'none'; }, 1800);
+    }
+
+    function setForm(data) {
+        document.getElementById('name').value = data?.name || '';
+        document.getElementById('dose').value = data?.dose || '';
+        document.getElementById('meal').value = data?.meal || '饭前';
+        document.getElementById('condition').value = data?.condition || '';
+        document.getElementById('remark').value = data?.remark || '';
+        document.getElementById('repeatType').value = data?.repeatType || 'daily1';
+        document.getElementById('intervalDays').value = data?.intervalDays || 1;
+        document.getElementById('tone').value = data?.tone || 'default';
+        document.getElementById('volume').value = data?.volume ?? 0.5;
+        document.querySelectorAll('#weekdayGroup input[type=checkbox]').forEach(chk => {
+            chk.checked = data?.repeatWeekdays?.includes(Number(chk.value));
+        });
+        document.querySelectorAll('input[type="checkbox"][value="morning"], input[type="checkbox"][value="noon"], input[type="checkbox"][value="evening"]').forEach(chk => {
+            chk.checked = data?.timePeriods?.includes(chk.value);
+        });
+        document.getElementById('morningTime').value = data?.periodTimes?.morning || '';
+        document.getElementById('noonTime').value = data?.periodTimes?.noon || '';
+        document.getElementById('eveningTime').value = data?.periodTimes?.evening || '';
+        updateRepeatUI();
+    }
+
+    function clearForm() {
+        editingId = null;
+        setForm({});
+        document.getElementById('saveBtn').textContent = '新增用药';
+    }
+
+    function toggleTimeInput(checkbox) {
+        const period = checkbox.value;
+        const input = document.getElementById(`${period}Time`);
+        input.disabled = !checkbox.checked;
+
+        if (document.getElementById('repeatType').value === 'daily1') {
+            const others = ['morning', 'noon', 'evening'].filter(p => p !== period);
+            others.forEach(p => {
+                const cb = document.querySelector(`input[type=checkbox][value=${p}]`);
+                const inp = document.getElementById(`${p}Time`);
+                cb.checked = false;
+                cb.disabled = true;
+                inp.disabled = true;
+            });
+        }
+    }
+
+    function updateRepeatUI() {
+        const type = document.getElementById('repeatType').value;
+        const weekdayGroup = document.getElementById('weekdayGroup');
+        const intervalDays = document.getElementById('intervalDays');
+        const morningChk = document.querySelector('input[type=checkbox][value="morning"]');
+        const noonChk = document.querySelector('input[type=checkbox][value="noon"]');
+        const eveningChk = document.querySelector('input[type=checkbox][value="evening"]');
+        const morningTime = document.getElementById('morningTime');
+        const noonTime = document.getElementById('noonTime');
+        const eveningTime = document.getElementById('eveningTime');
+
+        weekdayGroup.style.display = type === 'weekly' ? 'block' : 'none';
+        intervalDays.style.display = type === 'interval' ? 'block' : 'none';
+
+        if (type === 'daily1') {
+            morningChk.disabled = false;
+            noonChk.disabled = false;
+            eveningChk.disabled = false;
+            [morningTime, noonTime, eveningTime].forEach(inp => inp.disabled = true);
+        } else if (type === 'daily2') {
+            morningChk.checked = true;
+            noonChk.checked = false;
+            eveningChk.checked = true;
+            morningChk.disabled = true;
+            noonChk.disabled = true;
+            eveningChk.disabled = true;
+            morningTime.disabled = false;
+            noonTime.disabled = true;
+            eveningTime.disabled = false;
+        } else if (type === 'daily3') {
+            morningChk.checked = true;
+            noonChk.checked = true;
+            eveningChk.checked = true;
+            morningChk.disabled = true;
+            noonChk.disabled = true;
+            eveningChk.disabled = true;
+            morningTime.disabled = false;
+            noonTime.disabled = false;
+            eveningTime.disabled = false;
+        } else {
+            // interval/weekly：用户手动选择
+            morningChk.disabled = false;
+            noonChk.disabled = false;
+            eveningChk.disabled = false;
+            morningTime.disabled = !morningChk.checked;
+            noonTime.disabled = !noonChk.checked;
+            eveningTime.disabled = !eveningChk.checked;
+        }
+
+        if (type === 'daily1') {
+            const checkedPeriods = [morningChk, noonChk, eveningChk].filter(chk => chk.checked);
+            if (checkedPeriods.length === 1) {
+                checkedPeriods.forEach(chk => {
+                    document.getElementById(`${chk.value}Time`).disabled = false;
+                });
+            } else {
+                [morningTime, noonTime, eveningTime].forEach(inp => inp.disabled = true);
+            }
+        }
+    }
+
+    document.getElementById('repeatType').addEventListener('change', updateRepeatUI);
+    document.querySelectorAll('input[type=checkbox][value="morning"], input[type=checkbox][value="noon"], input[type=checkbox][value="evening"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (document.getElementById('repeatType').value === 'daily1') {
+                const checked = document.querySelectorAll('input[type=checkbox][value="morning"]:checked, input[type=checkbox][value="noon"]:checked, input[type=checkbox][value="evening"]:checked');
+                if (checked.length > 1) {
+                    cb.checked = false;
+                    return;
+                }
+            }
+            toggleTimeInput(cb);
+        });
+    });
+
+    function renderList() {
+        listEl.innerHTML = '';
+        if (!records.length) {
+            listEl.innerHTML = '<p style="color:#7b8da8;">暂无记录，添加一条开始提醒吧。</p>';
+            return;
+        }
+
+        records.forEach((record, index) => {
+            const item = document.createElement('div');
+            item.className = 'item';
+            const repeatInfo = record.repeatType === 'daily1'
+                ? '每天1次'
+                : record.repeatType === 'daily2'
+                    ? '每天2次'
+                    : record.repeatType === 'daily3'
+                        ? '每天3次'
+                        : record.repeatType === 'interval'
+                            ? `间隔 ${record.intervalDays} 天`
+                            : `星期${(record.repeatWeekdays || []).map(d => ['日','一','二','三','四','五','六'][d]).join(',')}`;
+            const periodInfo = (record.timePeriods || []).map(p => {
+                const map = { morning: '早上', noon: '中午', evening: '晚上' };
+                const time = record.periodTimes?.[p] || '--:--';
+                return `${map[p]}(${time})`;
+            }).join(', ');
+            const statusInfo = (record.timePeriods || []).map(p => {
+                const map = { morning: '早上', noon: '中午', evening: '晚上' };
+                const rdate = record.remindedDates?.[p];
+                return `${map[p]}:${rdate === new Date().toISOString().split('T')[0] ? '已提醒' : '待提醒'}`;
+            }).join(' | ');
+            item.innerHTML = `
+                <h3>${record.name} (${record.dose})</h3>
+                <div class="meta">${repeatInfo}</div>
+                <div class="meta">时间段：${periodInfo || '未设置'}</div>
+                <div class="meta">状态：${statusInfo || '无'}</div>
+                <div class="meta">饭前/饭后：${record.meal} | 主治：${record.condition}</div>
+                <div class="meta">主治：${record.condition}</div>
+                <div class="meta">提醒：${record.tone === 'none' ? '静音' : record.tone}，音量: ${Math.round((record.volume || 0.5) * 100)}%</div>
+                <div class="meta">备注：${record.remark || '无'}  |  设置于：${new Date(record.createdAt).toLocaleString()}</div>
+                <div class="actions">
+                    <button class="btn btn-primary action-btn" onclick="editRecord(${index})">编辑</button>
+                    <button class="btn btn-muted action-btn" onclick="deleteRecord(${index})">删除</button>
+                    <button class="btn btn-muted action-btn" onclick="triggerReminder(${index},true)">立即提醒</button>
+                </div>
+                <div class="status">状态：${record.remindedDate === new Date().toISOString().split('T')[0] ? '已提醒(今日)' : '待提醒'}</div>
+            `;
+            listEl.appendChild(item);
+        });
+    }
+
+    function addOrUpdate() {
+        const name = document.getElementById('name').value.trim();
+        const dose = document.getElementById('dose').value.trim();
+        const meal = document.getElementById('meal').value;
+        const condition = document.getElementById('condition').value.trim();
+        const remark = document.getElementById('remark').value.trim();
+        const repeatType = document.getElementById('repeatType').value;
+        const intervalDays = Number(document.getElementById('intervalDays').value) || 1;
+        const repeatWeekdays = Array.from(document.querySelectorAll('#weekdayGroup input[type=checkbox]:checked')).map(c => Number(c.value));
+        const tone = document.getElementById('tone').value;
+        const volume = Number(document.getElementById('volume').value);
+        const timePeriods = Array.from(document.querySelectorAll('input[type=checkbox][value="morning"], input[type=checkbox][value="noon"], input[type=checkbox][value="evening"]')).filter(c => c.checked).map(c => c.value);
+        const periodTimes = {
+            morning: document.getElementById('morningTime').value,
+            noon: document.getElementById('noonTime').value,
+            evening: document.getElementById('eveningTime').value,
+        };
+
+        if (!name || !timePeriods.length) {
+            showToast('请填写药品名称并选择至少一个时间段');
+            return;
+        }
+
+        const record = {
+            name,
+            dose,
+            meal,
+            condition,
+            remark,
+            repeatType,
+            intervalDays: Math.max(1, intervalDays),
+            repeatWeekdays,
+            timePeriods,
+            periodTimes,
+            tone,
+            volume,
+            createdAt: Date.now(),
+            remindedDates: {
+                morning: null,
+                noon: null,
+                evening: null,
+            },
+        };
+
+        if (editingId !== null) {
+            const base = records[editingId];
+            records[editingId] = { ...base, ...record, remindedDates: base.remindedDates || { morning: null, noon: null, evening: null } };
+            showToast('记录已更新');
+        } else {
+            records.push(record);
+            showToast('已添加用药记录');
+        }
+
+        saveRecords();
+        renderList();
+        clearForm();
+        scheduleAllReminders();
+    }
+
+    function editRecord(index) {
+        editingId = index;
+        const rec = records[index];
+        setForm(rec);
+        document.getElementById('saveBtn').textContent = '保存修改';
+    }
+
+    function deleteRecord(index) {
+        if (!confirm('确定删除该用药记录吗？')) return;
+        records.splice(index, 1);
+        saveRecords();
+        renderList();
+        showToast('记录已删除');
+    }
+
+    function notify(message, tone = 'default', volume = 0.5) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('用药提醒', { body: message, icon: '' });
+        }
+        if (tone === 'none' || volume === 0) return;
+
+        const freq = tone === 'tone1' ? 660 : tone === 'tone2' ? 1040 : 880;
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = Math.min(1, Math.max(0, volume));
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        setTimeout(() => { osc.stop(); ctx.close(); }, 600);
+    }
+
+    function triggerReminder(index, manual = false, period) {
+        const rec = records[index];
+        if (!rec) return;
+        const selectedPeriods = period ? [period] : (rec.timePeriods || []);
+        const periodNames = selectedPeriods.map(p => {
+            const map = { morning: '早上', noon: '中午', evening: '晚上' };
+            return map[p];
+        }).join('/');
+        const times = selectedPeriods.map(p => rec.periodTimes?.[p] || '--:--').join(', ');
+        const message = `${rec.name} ${rec.dose}，${rec.meal}服用，主治${rec.condition}${periodNames ? ` (${periodNames})` : ''} 时间: ${times}`;
+        showToast(manual ? '手动提醒：' + message : '用药时间到：' + message);
+        notify(message, rec.tone, rec.volume);
+        const todayKey = new Date().toISOString().split('T')[0];
+        if (!rec.remindedDates) rec.remindedDates = {};
+        selectedPeriods.forEach(p => {
+            rec.remindedDates[p] = todayKey;
+        });
+        saveRecords();
+        renderList();
+    }
+
+    function isTodayEligible(rec, date) {
+        if (rec.repeatType.startsWith('daily')) return true;
+        if (rec.repeatType === 'interval') {
+            const start = new Date(new Date(rec.createdAt).setHours(0, 0, 0, 0));
+            const target = new Date(new Date(date).setHours(0, 0, 0, 0));
+            const days = Math.floor((target - start) / 86400000);
+            return days >= 0 && ((rec.intervalDays || 1) > 0) && (days % rec.intervalDays === 0);
+        }
+        if (rec.repeatType === 'weekly') {
+            return (rec.repeatWeekdays || []).includes(date.getDay());
+        }
+        return true;
+    }
+
+    function scheduleAllReminders() {
+        if (window.reminderTimers) {
+            window.reminderTimers.forEach(t => clearTimeout(t));
+        }
+        window.reminderTimers = [];
+
+        const now = new Date();
+        const todayKey = now.toISOString().split('T')[0];
+
+        records.forEach((rec, idx) => {
+            if (!isTodayEligible(rec, now)) return;
+            const periods = rec.timePeriods || [];
+
+            periods.forEach(period => {
+                const periodTime = rec.periodTimes?.[period];
+                if (!periodTime) return;
+                if (!rec.remindedDates) rec.remindedDates = {};
+                if (rec.remindedDates[period] === todayKey) return;
+
+                const [h, m] = periodTime.split(':').map(Number);
+                if (isNaN(h) || isNaN(m)) return;
+
+                let next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
+                if (next < now) {
+                    next.setDate(next.getDate() + 1);
+                }
+
+                const delta = next - now;
+                const timeoutId = setTimeout(() => {
+                    if (isTodayEligible(rec, new Date())) {
+                        triggerReminder(idx, false, period);
+                    }
+                    saveRecords();
+                    renderList();
+                    scheduleAllReminders();
+                }, delta);
+
+                window.reminderTimers.push(timeoutId);
+            });
+        });
+    }
+
+    function requestNotificationPermission() {
+        if (!('Notification' in window)) return;
+        if (Notification.permission === 'default') {
+            Notification.requestPermission().then(p => {
+                if (p === 'granted') showToast('已允许系统通知');
+            });
+        }
+    }
+
+    document.getElementById('saveBtn').onclick = addOrUpdate;
+    document.getElementById('clearBtn').onclick = clearForm;
+
+    window.addEventListener('load', () => {
+        renderList();
+        requestNotificationPermission();
+        scheduleAllReminders();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => {
+                console.log('ServiceWorker registered');
+            });
+        }
+    });
+
+    // 每天凌晨重置提醒状态
+    setInterval(() => {
+        const now = new Date();
+        if (now.getHours() === 0 && now.getMinutes() === 0) {
+            records = records.map(r => ({ ...r, remindedDate: null }));
+            saveRecords();
+            renderList();
+            scheduleAllReminders();
+        }
+    }, 60000);
+</script>
+</body>
+</html>

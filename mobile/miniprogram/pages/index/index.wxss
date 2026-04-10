@@ -1,0 +1,45 @@
+/* pages/index/index.wxss */
+.header-title {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.header-desc {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.card-title {
+  display: block;
+  font-size: 1.1rem;
+  color: #2b8cff;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.picker {
+  border: 1px solid #d7e8ff;
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+}
+
+.time-periods {
+  display: flex;
+  gap: 8px;
+}
+
+.time-periods view {
+  flex: 1;
+}
+
+.item-title {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 6px;
+}

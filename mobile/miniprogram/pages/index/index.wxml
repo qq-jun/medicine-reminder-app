@@ -1,0 +1,115 @@
+<view class="app">
+  <view class="header">
+    <text class="header-title">用药提醒小助手</text>
+    <text class="header-desc">记录/管理用药，支持提醒及音乐提示</text>
+  </view>
+
+  <view class="card">
+    <text class="card-title">用药信息填写</text>
+    <view class="row">
+      <view>
+        <label>药品名称</label>
+        <input id="name" type="text" placeholder="例如：阿莫西林" value="{{form.name}}" bindinput="onInputChange" data-field="name" />
+      </view>
+      <view>
+        <label>用药剂量</label>
+        <input id="dose" type="text" placeholder="例如：250mg/1片" value="{{form.dose}}" bindinput="onInputChange" data-field="dose" />
+      </view>
+    </view>
+
+    <view class="row" style="align-items:flex-end;">
+      <view>
+        <label>用药规则</label>
+        <picker mode="selector" range="{{repeatOptions}}" value="{{repeatIndex}}" bindchange="onRepeatChange">
+          <view class="picker">{{repeatOptions[repeatIndex]}}</view>
+        </picker>
+      </view>
+      <view>
+        <label>饭前/饭后</label>
+        <picker mode="selector" range="{{mealOptions}}" value="{{mealIndex}}" bindchange="onMealChange">
+          <view class="picker">{{mealOptions[mealIndex]}}</view>
+        </picker>
+      </view>
+      <view style="flex: 0 0 100px;" wx:if="{{form.repeatType === 'interval'}}">
+        <label>间隔天</label>
+        <input type="number" min="1" value="{{form.intervalDays}}" placeholder="间隔天" bindinput="onInputChange" data-field="intervalDays" />
+      </view>
+    </view>
+
+    <view wx:if="{{form.repeatType === 'weekly'}}" style="margin-top:8px;">
+      <label>选择星期</label>
+      <view class="row">
+        <checkbox-group bindchange="onWeekdayChange">
+          <label wx:for="{{weekdays}}" wx:key="value">
+            <checkbox value="{{item.value}}" checked="{{form.repeatWeekdays.includes(item.value)}}" /> {{item.label}}
+          </label>
+        </checkbox-group>
+      </view>
+    </view>
+
+    <label>用药时间段</label>
+    <view class="time-periods row" style="align-items:center; gap:8px;">
+      <view style="flex:1;" wx:for="{{periods}}" wx:key="value">
+        <label>
+          <checkbox value="{{item.value}}" checked="{{form.timePeriods.includes(item.value)}}" bindchange="onPeriodChange" /> {{item.label}}
+        </label>
+        <input type="time" value="{{form.periodTimes[item.value]}}" disabled="{{!form.timePeriods.includes(item.value)}}" bindinput="onTimeChange" data-period="{{item.value}}" />
+      </view>
+    </view>
+
+    <label>主治症状</label>
+    <input type="text" placeholder="例如：咳嗽、感冒" value="{{form.condition}}" bindinput="onInputChange" data-field="condition" />
+
+    <label>提醒音</label>
+    <view class="row">
+      <picker mode="selector" range="{{toneOptions}}" value="{{toneIndex}}" bindchange="onToneChange">
+        <view class="picker">{{toneOptions[toneIndex]}}</view>
+      </picker>
+      <slider min="0" max="1" step="0.05" value="{{form.volume}}" bindchange="onVolumeChange" />
+    </view>
+
+    <label>备注</label>
+    <textarea placeholder="可写服药次数、注意事项等" value="{{form.remark}}" bindinput="onInputChange" data-field="remark" />
+
+    <view class="row" style="margin-top:10px;">
+      <button class="btn btn-primary" bindtap="addOrUpdate">{{editingId !== null ? '保存修改' : '新增用药'}}</button>
+      <button class="btn btn-muted" bindtap="clearForm">清空输入</button>
+    </view>
+  </view>
+
+  <view class="tips card">
+    <text><strong>用药常识：</strong></text>
+    <view>
+      <text>按医嘱服用，切勿擅自加减药量。</text>
+    </view>
+    <view>
+      <text>饭前/饭后请严格遵守，避免影响药效和胃肠不适。</text>
+    </view>
+    <view>
+      <text>若出现过敏或不适，及时就医。</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">当前用药列表</text>
+    <view class="list" wx:if="{{records.length > 0}}">
+      <view class="item" wx:for="{{records}}" wx:key="createdAt" wx:for-index="index">
+        <text class="item-title">{{item.name}} ({{item.dose}})</text>
+        <view class="meta">{{getRepeatInfo(item)}}</view>
+        <view class="meta">时间段：{{getPeriodInfo(item)}}</view>
+        <view class="meta">状态：{{getStatusInfo(item)}}</view>
+        <view class="meta">饭前/饭后：{{item.meal}} | 主治：{{item.condition}}</view>
+        <view class="meta">提醒：{{item.tone === 'none' ? '静音' : item.tone}}，音量: {{Math.round((item.volume || 0.5) * 100)}}%</view>
+        <view class="meta">备注：{{item.remark || '无'}} | 设置于：{{new Date(item.createdAt).toLocaleString()}}</view>
+        <view class="actions">
+          <button class="btn btn-primary action-btn" bindtap="editRecord" data-index="{{index}}">编辑</button>
+          <button class="btn btn-muted action-btn" bindtap="deleteRecord" data-index="{{index}}">删除</button>
+          <button class="btn btn-muted action-btn" bindtap="triggerReminder" data-index="{{index}}">立即提醒</button>
+        </view>
+      </view>
+    </view>
+    <view wx:else>
+      <text style="color:#7b8da8;">暂无记录，添加一条开始提醒吧。</text>
+    </view>
+  </view>
+</view>

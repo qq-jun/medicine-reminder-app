@@ -1,0 +1,98 @@
+<view class="container">
+  <navigation-bar title="添加/编辑药品" show-back="{{true}}" />
+
+  <scroll-view class="form-container" scroll-y="true">
+    <view class="form-item">
+      <text class="label">药品名称</text>
+      <input class="input" placeholder="请输入药品名称" value="{{med.name}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">剂量</text>
+      <input class="input" placeholder="例如：1片" value="{{med.dosage}}" bindinput="onDosageInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">饭前/饭后</text>
+      <picker class="picker" mode="selector" range="{{mealOptions}}" value="{{med.beforeMeal ? 0 : 1}}" bindchange="onMealChange">
+        <view class="picker-display">{{mealOptions[med.beforeMeal ? 0 : 1]}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">适应症状</text>
+      <input class="input" placeholder="请输入适应症状" value="{{med.symptoms}}" bindinput="onSymptomsInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">用药频率</text>
+      <picker class="picker" mode="selector" range="{{frequencyOptions}}" value="{{med.frequency - 1}}" bindchange="onFrequencyChange">
+        <view class="picker-display">{{frequencyOptions[med.frequency - 1]}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item" wx:if="{{med.frequency === 1}}">
+      <text class="label">选择时段（先选时段，再设时间）</text>
+      <radio-group class="radio-group" bindchange="onSlotSelect">
+        <label class="radio-item" wx:for="{{slotOptions}}" wx:key="value">
+          <radio value="{{item.value}}" checked="{{selectedSlot === item.value}}" />
+          <text>{{item.label}}</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <view class="form-item" wx:if="{{med.frequency === 2}}">
+      <text class="label">选择2个时段（先选时段，再设时间）</text>
+      <checkbox-group class="radio-group" bindchange="onSlotToggle">
+        <label class="radio-item" wx:for="{{slotOptions}}" wx:key="value">
+          <checkbox value="{{item.value}}" checked="{{selectedSlots.indexOf(item.value) !== -1}}" />
+          <text>{{item.label}}</text>
+        </label>
+      </checkbox-group>
+    </view>
+
+    <view class="form-item" wx:if="{{med.frequency === 3}}">
+      <text class="label">已自动选择全部时段（早中晚）</text>
+    </view>
+
+    <view class="form-item" wx:if="{{selectedSlots.indexOf('morning') !== -1}}">
+      <text class="label">早上时间（05:00-09:00）</text>
+      <picker class="picker" mode="time" start="05:00" end="09:00" value="{{med.slots.morning.time}}" bindchange="onMorningTimeChange">
+        <view class="picker-display">{{med.slots.morning.time || '未设置'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item" wx:if="{{selectedSlots.indexOf('noon') !== -1}}">
+      <text class="label">中午时间（09:00-14:00）</text>
+      <picker class="picker" mode="time" start="09:00" end="14:00" value="{{med.slots.noon.time}}" bindchange="onNoonTimeChange">
+        <view class="picker-display">{{med.slots.noon.time || '未设置'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item" wx:if="{{selectedSlots.indexOf('evening') !== -1}}">
+      <text class="label">晚上时间（14:00-22:00）</text>
+      <picker class="picker" mode="time" start="14:00" end="22:00" value="{{med.slots.evening.time}}" bindchange="onEveningTimeChange">
+        <view class="picker-display">{{med.slots.evening.time || '未设置'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">提醒方式</text>
+      <picker class="picker" mode="selector" range="{{reminderOptions}}" value="{{med.reminderType === 'popup' ? 0 : 1}}" bindchange="onReminderChange">
+        <view class="picker-display">{{reminderOptions[med.reminderType === 'popup' ? 0 : 1]}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">启用跟踪</text>
+      <switch checked="{{med.tracking}}" bindchange="onTrackingChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">备注</text>
+      <input class="input" placeholder="厂家、单价等信息" value="{{med.notes}}" bindinput="onNotesInput" />
+    </view>
+
+    <button class="save-btn" bindtap="onSave">保存</button>
+  </scroll-view>
+</view>

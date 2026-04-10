@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 应用整体主题 -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- 主色调 -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <!-- 深色状态栏 -->
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <!-- 控件/选中色 -->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- 窗口背景 -->
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+
+    <!-- 登录页/首页专用主题（可按需修改） -->
+    <style name="AuthTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/teal_500</item>
+        <item name="colorAccent">@color/teal_200</item>
+    </style>
+
+    <!-- 弹窗主题（无标题栏） -->
+    <style name="DialogTheme" parent="Theme.MaterialComponents.Dialog">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+</resources>

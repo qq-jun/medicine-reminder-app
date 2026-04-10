@@ -1,0 +1,166 @@
+/* 全局样式 */
+:root {
+  --bg: #f4f9ff;
+  --card: #ffffff;
+  --text: #212f42;
+  --accent: #2b8cff;
+  --soft: #cde3ff;
+  --border: #d7e8ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.app {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(39, 96, 178, 0.08);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.card h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+label {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 0.9rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 56px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.row > * {
+  flex: 1;
+}
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform .1s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-muted {
+  background: var(--soft);
+  color: #1355a4;
+}
+
+.tips {
+  background: #e8f2ff;
+  border: 1px dashed #a8d0ff;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.86rem;
+  margin-bottom: 14px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+.item h3 {
+  margin: 0 0 6px;
+}
+
+.meta {
+  font-size: 0.87rem;
+  color: #335478;
+  margin-bottom: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  flex: 1;
+}
+
+.status {
+  font-size: 0.84rem;
+  color: #3b7d30;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  display: none;
+  z-index: 999;
+}

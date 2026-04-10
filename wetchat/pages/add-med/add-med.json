@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "添加/编辑药品",
+  "usingComponents": {
+    "navigation-bar": "../../components/navigation-bar/navigation-bar"
+  }
+}
